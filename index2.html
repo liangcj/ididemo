@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>C. Jason Liang</title>
+        <link href='http://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
+        <link rel='shortcut icon' href='/favicon.ico'>
+        <script type="text/javascript" src="d3/d3.v3.js"></script>
+        <style>
+        
+        .axis path,
+        .axis line{
+            fill: none;
+            stroke: black;
+            shape-rendering: crispEdges;
+        }
+
+        .axis text{
+            font-family: sans-serif;
+            font-size: 11px;
+        }
+
+        circle{
+            stroke: black;
+            stroke-width: 0px;
+        }
+
+        text{
+            font-family: Helvetica;
+        }
+        #myname{
+            font-family: "PT Sans", sans-serif;
+            font-size: 64px;
+            font-weight: 300;
+            letter-spacing: -2px;
+            text-align: center;
+            padding-bottom: 5px;
+            border-bottom: 1px dotted rgb(100,100,100);
+        }
+        #menu{
+            height: 40px;
+        }
+        body{
+            display: block;
+            position: relative;
+            width: 900px;
+            margin: 1em auto 4em auto;
+            background-color:rgb(220,220,220);
+        }
+        h1{
+            width: 900px;
+            height: 80px;
+            display: block;
+        }
+        ul{
+            -webkit-padding-start: 0px;
+            text-align: center;
+        }
+        li{
+            display:inline-block;
+            font-family: "PT Sans", sans-serif;
+            font-size: 24px;
+            color: rgb(100,100,100);
+            text-align: center;
+            padding-left: 0.25em;
+            padding-right: 0.25em;
+        }
+        p{
+            font-family:"PT Sans";
+        }
+        #myname a:link,
+        #myname a:visited,
+        #myname a:hover,
+        #myname a:active{
+            color: black;
+            text-decoration: none;
+        }
+        #menu ul li a:link,
+        #menu ul li a:visited{
+            text-decoration: none;
+            color: rgb(100,100,100);
+        }
+        #menu ul li a:hover,
+        #menu ul li a:active{
+            color: black;
+            text-decoration: none;
+        }
+        #time2bin{
+          cursor:normal;
+        }
+        svg{
+            cursor:crosshair;
+        }
+        </style>
+    </head>
+    <body>
+        <h1>
+            <p id="myname"><a href="/index.html">C. Jason Liang</a></p>
+        </h1>
+        <div id="menu">
+            <ul>
+                <li><a href="/index.html">Home</a></li>
+                <li> | </li>
+                <li><a href="/research.html">Research<a></li>
+                <li> | </li>
+                <li><a href="/cv.html">CV</a></li>
+                <li> | </li>
+                <li><a href="/about.html">About</a></li>
+                <li> | </li>
+                <li><a href="/interactive.html">Interactive Survival Data</a></li>
+            </ul>
+        </div>
+
+        <script type="text/javascript">
+            var w3 = 900;
+            var h3 = 600;
+            var pad3 = 50;
+            var svg3 = d3.select("body")
+                        .append("svg")
+                            .attr("width", w3).attr("height", h3);
+            var pbcdata;
+            var pbcdatat = {time:[], status:[], age:[], edema:[], bili:[], albumin:[], protime:[]};
+
+            d3.csv("/pbcdata.csv", function(d){
+                pbcdata = d;
+                pbcdata.forEach(function(d,i){
+                    pbcdatat.time.push(+pbcdata[i].time);
+                    pbcdatat.status.push(pbcdata[i].status);
+                    pbcdatat.age.push(+pbcdata[i].age);
+                    pbcdatat.edema.push(+pbcdata[i].edema);
+                    pbcdatat.bili.push(+pbcdata[i].bili);
+                    pbcdatat.albumin.push(+pbcdata[i].albumin);
+                    pbcdatat.protime.push(+pbcdata[i].protime);
+                })
+
+                var xScale3 = d3.scale.linear()
+                                .domain([0, d3.max(pbcdata, function(d){return +d.time;})])
+                                .range([pad3, w3-pad3]);
+                var yScale3 = d3.scale.linear()
+                                .domain([d3.min(pbcdata, function(d){return +d.bili;}), d3.max(pbcdata, function(d){return +d.bili;})])
+                                .range([h3-pad3, pad3]);
+                svg3.selectAll("cicles.pbc")
+                        .data(pbcdata)
+                        .enter()
+                    .append("circle")
+                        .attr("class", "pbccirc")
+                        .attr("cx", function(d){return xScale3(+d.time)})
+                        .attr("cy", function(d){return yScale3(+d.bili)})
+                        .attr("r", 5)
+                        .attr("fill", function(d){
+                            if(d.status=="1"){
+                                return "red";
+                            } else{
+                                return "rgb(220,220,220)";
+                            }
+                        })
+                        .attr("fill-opacity", function(d){
+                            if(d.status=="1"){
+                                return 1;
+                            } else{
+                                return 0;
+                            }
+                        })
+                        .style("stroke-width", function(d){
+                            if(d.status=="1"){
+                                return 0;
+                            } else{
+                                return 2;
+                            }
+                        });
+                var xAxis3 = d3.svg.axis().scale(xScale3).orient("bottom").ticks(10);
+                var yAxis3 = d3.svg.axis().scale(yScale3).orient("left").ticks(10);
+                svg3.append("g")
+                        .attr("class", "x axis three")
+                        .attr("transform", "translate(0," + (h3-pad3/2) + ")")
+                        .call(xAxis3);
+                svg3.append("g")
+                        .attr("class", "y axis three")
+                        .attr("transform", "translate(" + pad3/2 + ",0)")
+                        .call(yAxis3);
+
+                var cuttime = 0;
+                var cclab = svg3.append("text")
+                        .text(cuttime)
+                        .attr("x", w3-2.5*pad3)
+                        .attr("y", 1.34*pad3)
+                        .attr("fill", "rgb(150, 150, 150)")
+                        .style("font-family", "PT Sans")
+                        .style("font-size", "36px");
+                var cclab1 = svg3.append("text")
+                        .text("cases: T < ")
+                        .attr("x", w3-4*pad3)
+                        .attr("y", pad3)
+                        .attr("fill", "rgb(150, 150, 150)")
+                        .style("font-family", "PT Sans");
+                var cclab2 = svg3.append("text")
+                        .text("controls: T > ")
+                        .attr("x", w3-4*pad3-17)
+                        .attr("y", pad3*1.4)
+                        .attr("fill", "rgb(150, 150, 150)")
+                        .style("font-family", "PT Sans");
+                var mouse = 0;
+                var g = svg3.append("rect")
+                        .attr("x", -w3)
+                        .attr("y", 0)
+                        .attr("height", h3)
+                        .attr("width", w3)
+                        .attr("fill", "gray")
+                        .attr("fill-opacity", .25);
+                svg3.on("mousemove", function(){
+                    if (gbox==0){
+                        return 0;
+                    }
+                    mouse=d3.mouse(this)[0];
+                    cclab.text(Math.round(xScale3.invert(mouse)));
+                });
+                var gbox = 1;
+                var mousebox = function(){
+                    if (gbox==0) {
+                        return 0;
+                    }
+                    g.transition().duration(0)
+                            .attr("x", mouse-w3);
+                };
+                setInterval(mousebox, 10);
+
+                svg3
+                        .on("click", function(){
+                            if(gbox==0){return 0;   }
+                            gbox = 0;
+                            g.transition().delay(2000).duration(500).attr("x",-w3).remove();
+                            cuttime = xScale3.invert(d3.mouse(this)[0]);
+                            var xScale3ord = d3.scale.ordinal()
+                                    .domain([" ", "cases", "controls", "  "])
+                                    .rangePoints([0+pad3,w3-pad3]);
+                            var xAxis3ord = d3.svg.axis()
+                                    .scale(xScale3ord)
+                                    .orient("bottom").ticks(2);
+                            svg3.selectAll(".pbccirc")
+                                .transition().duration(2000)
+                                .style("stroke-width", function(d){
+                                    if(d.status=="0" & +d.time<(cuttime)){
+                                        return "0";
+                                    } else{
+                                        return this;
+                                    }
+                                })
+                                .transition().ease("linear").duration(2000)
+                                .attr("cx", function(d){
+                                    if(+d.time<(cuttime)){
+                                        return xScale3ord("cases");
+                                    } else{
+                                        return xScale3ord("controls")
+                                    }
+                                })
+                                .attr("fill", function(d){
+                                    if(+d.time<(cuttime)){
+                                        return "rgb(255, 128, 0)";
+                                    } else{
+                                        return "rgb(128, 0, 255)";
+                                    }
+                                })
+                                .attr("fill-opacity", function(d){
+                                    if(+d.time<(cuttime) & d.status=="0"){
+                                        return 0;
+                                    } else{
+                                        return .25;
+                                    }
+                                })
+                                .style("stroke-width", "0");
+                            svg3.select(".x.axis.three")
+                                    .transition().duration(4000)
+                                    .call(xAxis3ord);
+                            
+                            var histcase = [];
+                            var histcont = [];
+                            pbcdata.forEach(function(d){
+                                if(d.time>cuttime){
+                                    histcont.push(d.bili);
+                                } else{
+                                    histcase.push(d.bili);
+                                }
+                            });
+                            
+                            function kernelDensityEstimator(kernel, x) {
+                              return function(sample) {
+                                return x.map(function(x) {
+                                  return [x, d3.mean(sample, function(v) { return kernel(x - v); })];
+                                });
+                              };
+                            }
+
+                            function epanechnikovKernel(scale) {
+                              return function(u) {
+                                return Math.abs(u /= scale) <= 1 ? .75 * (1 - u * u) / scale : 0;
+                              };
+                            }
+
+                            xScale3.domain([0,.65]).range([xScale3ord("cases"), pad3]);
+                            yScale3.domain([d3.min(pbcdatat.bili), d3.max(pbcdatat.bili)]).range([h3-pad3, pad3]);
+                            var baseline = d3.svg.line()
+                                    .x(function(d){return xScale3(0);})
+                                    .y(function(d){return yScale3(d[0]);});
+                            var caseline = d3.svg.line()
+                                    .x(function(d){return xScale3(d[1]);})
+                                    .y(function(d){return yScale3(d[0]);});
+                            var casekde = kernelDensityEstimator(epanechnikovKernel(0.5), yScale3.ticks(100));
+                            var casekdedata = casekde(histcase);
+                            casekdedata.push([d3.max(pbcdatat.bili)+casekdedata[2][0]-casekdedata[1][0],0]);
+                            casekdedata.unshift([d3.min(pbcdatat.bili)-casekdedata[2][0]+casekdedata[1][0],0]);
+                            console.log(casekdedata);
+                            svg3.append("path")
+                                    .datum(casekdedata)
+                                    .transition().delay(4000).duration(500)
+                                    .attr("class", "linecase")
+                                    .attr("d", baseline)
+                                    .style("stroke", "rgba(256,128,0,1)")
+                                    .style("stroke-width", "2px")
+                                    .style("fill","rgba(256,128,0,1)")
+                                    .transition().delay(4500).duration(3000)
+                                    .attr("d", caseline);
+                                                                
+                            xScale3.domain([0,.65]).range([xScale3ord("controls"), w3-pad3]);
+                            var contline = d3.svg.line()
+                                    .x(function(d){return xScale3(d[1]);})
+                                    .y(function(d){return yScale3(d[0]);});
+                            var contkde = kernelDensityEstimator(epanechnikovKernel(0.5), yScale3.ticks(100));
+                            var contkdedata = contkde(histcont);
+                            contkdedata.push([d3.max(pbcdatat.bili)+contkdedata[2][0]-contkdedata[1][0],0]);
+                            contkdedata.unshift([d3.min(pbcdatat.bili)-contkdedata[2][0]+contkdedata[1][0],0]);
+
+                            console.log(contkdedata);
+                            svg3.append("path")
+                                    .datum(contkdedata)
+                                    .transition().delay(4000).duration(500)
+                                    .attr("class", "linecont")
+                                    .attr("d", baseline)
+                                    .style("stroke", "rgba(128,0,256,1)")
+                                    .style("stroke-width", "2px")
+                                    .style("fill", "rgba(128,0,256,1)")
+                                    .transition().delay(4500).duration(3000)
+                                    .attr("d", contline);
+
+                            svg3.selectAll(".pbccirc")
+                                    .transition().delay(7500).duration(1000)
+                                    .attr("r", 0);
+
+                            var meanline = d3.svg.line()
+                                    .x(function(d){return xScale3(d[1]);})
+                                    .y(function(d){return yScale3(d[0]);});
+                            svg3.append("path")
+                                    .style("stroke-width", "0px")
+                                    .style("stroke-dasharray", "5,5")
+                                    .transition().delay(8500).duration(500)
+                                    .style("stroke", "red")
+                                    .style("stroke-width", "4px")
+                                    .attr("d", "M"+(xScale3ord("cases")-pad3*2)+","+yScale3(d3.mean(histcase))+"L"+(xScale3ord("cases")+pad3*2)+","+yScale3(d3.mean(histcase)))
+                                    .attr("shape-rendering", "crispEdges");
+                            svg3.append("path")
+                                    .style("stroke-width", "0px")
+                                    .style("stroke-dasharray", "5,5")
+                                    .transition().delay(8500).duration(500)
+                                    .style("stroke", "blue")
+                                    .style("stroke-width", "4px")
+                                    .attr("d", "M"+(xScale3ord("controls")-pad3*2)+","+yScale3(d3.mean(histcont))+"L"+(xScale3ord("controls")+pad3*2)+","+yScale3(d3.mean(histcont)))
+                                    .attr("shape-rendering", "crispEdges");
+
+                        });
+            });            
+
+            d3.select("body").append("p").attr("id", "time2bin").style("text-align", "center")
+                    .text("CLICK GRAPH FOR GRATUITOUS ANIMATION    ")
+        </script>
+    </body>
+</html>
