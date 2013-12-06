@@ -3,10 +3,11 @@
     <head>
         <meta charset="utf-8">
         <title>C. Jason Liang</title>
-        <link href='http://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
-        <link rel='shortcut icon' href='/favicon.ico'>
+        <link href="http://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet" type="text/css">
+        <link href="/favicon.ico" rel="shortcut icon">
+        <link href="/css/mystyle.css" rel="stylesheet" type="text/css">
         <script type="text/javascript" src="d3/d3.v3.js"></script>
-        <style>
+<!--        <style>
         
         .axis path,
         .axis line{
@@ -91,7 +92,7 @@
         svg{
             cursor:crosshair;
         }
-        </style>
+        </style> -->
     </head>
     <body>
         <h1>
@@ -139,6 +140,7 @@
                 var yScale3 = d3.scale.linear()
                                 .domain([d3.min(pbcdata, function(d){return +d.bili;}), d3.max(pbcdata, function(d){return +d.bili;})])
                                 .range([h3-pad3, pad3]);
+
                 svg3.selectAll("cicles.pbc")
                         .data(pbcdata)
                         .enter()
@@ -148,28 +150,18 @@
                         .attr("cy", function(d){return yScale3(+d.bili)})
                         .attr("r", 5)
                         .attr("fill", function(d){
-                            if(d.status=="1"){
-                                return "red";
-                            } else{
-                                return "rgb(220,220,220)";
-                            }
+                              return d.status=="1" ? "red" : "rgb(220,220,220)";
                         })
                         .attr("fill-opacity", function(d){
-                            if(d.status=="1"){
-                                return 1;
-                            } else{
-                                return 0;
-                            }
+                              return d.status=="1" ? 1 : 0;
                         })
                         .style("stroke-width", function(d){
-                            if(d.status=="1"){
-                                return 0;
-                            } else{
-                                return 2;
-                            }
+                              return d.status=="1" ? 0 : 2;
                         });
+
                 var xAxis3 = d3.svg.axis().scale(xScale3).orient("bottom").ticks(10);
                 var yAxis3 = d3.svg.axis().scale(yScale3).orient("left").ticks(10);
+
                 svg3.append("g")
                         .attr("class", "x axis three")
                         .attr("transform", "translate(0," + (h3-pad3/2) + ")")
@@ -226,16 +218,20 @@
 
                 svg3
                         .on("click", function(){
-                            if(gbox==0){return 0;   }
+                            if(gbox==0){return 0;}
                             gbox = 0;
+                            
                             g.transition().delay(2000).duration(500).attr("x",-w3).remove();
+                            
                             cuttime = xScale3.invert(d3.mouse(this)[0]);
+                            
                             var xScale3ord = d3.scale.ordinal()
                                     .domain([" ", "cases", "controls", "  "])
                                     .rangePoints([0+pad3,w3-pad3]);
                             var xAxis3ord = d3.svg.axis()
                                     .scale(xScale3ord)
                                     .orient("bottom").ticks(2);
+                            
                             svg3.selectAll(".pbccirc")
                                 .transition().duration(2000)
                                 .style("stroke-width", function(d){
@@ -369,7 +365,7 @@
             });            
 
             d3.select("body").append("p").attr("id", "time2bin").style("text-align", "center")
-                    .text("CLICK GRAPH FOR GRATUITOUS ANIMATION    ")
+                    .text("CLICK GRAPH FOR GRATUITOUS ANIMATION")
         </script>
     </body>
 </html>
