@@ -121,7 +121,7 @@
             var pbcdata;
             var pbcdatat = {time:[], status:[], age:[], edema:[], bili:[], albumin:[], protime:[]};
 
-            d3.csv("/pbcdata.csv", function(d){
+            d3.csv("data/pbcdata.csv", function(d){
                 pbcdata = d;
                 pbcdata.forEach(function(d,i){
                     pbcdatat.time.push(+pbcdata[i].time);
